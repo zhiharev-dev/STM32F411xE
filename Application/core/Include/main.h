@@ -30,6 +30,11 @@ extern "C" {
 #include <string.h>
 #include <assert.h>
 #include "stm32f4xx.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "event_groups.h"
+#include "semphr.h"
 
 /* Exported macros --------------------------------------------------------- */
 

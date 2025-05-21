@@ -50,6 +50,11 @@ volatile uint32_t systick;
 /* Состояние VDD */
 volatile bool vdd_is_lower;
 
+/* Параметры отслеживания работы FreeRTOS */
+static size_t free_heap_size;
+static size_t minimum_ever_free_heap_size;
+static uint32_t appl_idle_hook_counter;
+
 /* LEDs */
 struct led led_blue = {
     .gpio = GPIOC,
@@ -64,7 +69,7 @@ static void setup_vector_table(void);
 
 static void setup_fpu(void);
 
-static void app_main(void);
+static void app_main(void *argv);
 
 static void systick_init(const uint32_t frequency);
 
@@ -83,7 +88,15 @@ static void gpio_led_init(void);
 int main(void)
 {
     setup_hardware();
-    app_main();
+
+    xTaskCreate(app_main,
+                "app_main",
+                configMINIMAL_STACK_SIZE * 2,
+                NULL,
+                tskIDLE_PRIORITY + 1,
+                NULL);
+
+    vTaskStartScheduler();
 }
 /* ------------------------------------------------------------------------- */
 
@@ -104,14 +117,34 @@ void error(void)
 }
 /* ------------------------------------------------------------------------- */
 
-static void app_main(void)
+static void app_main(void *argv)
 {
+    static const TickType_t frequency = pdMS_TO_TICKS(10);
+
+    /* INIT CODE BEGIN ----------------------------------------------------- */
+
     /* Включить светодиод - Рабочее состояние */
     led_on(&led_blue);
 
+    /* INIT CODE END ------------------------------------------------------- */
+
+    TickType_t last_wake_time = xTaskGetTickCount();
+
     while (true) {
-        continue;
+        vTaskDelayUntil(&last_wake_time, frequency);
     }
+
+    vTaskDelete(NULL);
+}
+/* ------------------------------------------------------------------------- */
+
+void vApplicationIdleHook(void)
+{
+    /* Отслеживание свободного времени FreeRTOS */
+    appl_idle_hook_counter++;
+    /* Обновить информацию об используемой памяти FreeRTOS */
+    free_heap_size = xPortGetFreeHeapSize();
+    minimum_ever_free_heap_size = xPortGetMinimumEverFreeHeapSize();
 }
 /* ------------------------------------------------------------------------- */
 

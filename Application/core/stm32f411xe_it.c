@@ -75,6 +75,11 @@ void SysTick_Handler(void)
      */
     if (READ_BIT(SysTick->CTRL, SysTick_CTRL_COUNTFLAG_Msk)) {
         systick++;
+
+        /* Обработать системный таймер FreeRTOS */
+        if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+            xPortSysTickHandler();
+        }
     }
 }
 /* ------------------------------------------------------------------------- */
