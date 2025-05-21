@@ -18,6 +18,7 @@
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
+#include "led.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -49,6 +50,12 @@ volatile uint32_t systick;
 /* Состояние VDD */
 volatile bool vdd_is_lower;
 
+/* LEDs */
+struct led led_blue = {
+    .gpio = GPIOC,
+    .pin = GPIO_ODR_OD13,
+};
+
 /* Private function prototypes --------------------------------------------- */
 
 static void setup_hardware(void);
@@ -67,6 +74,10 @@ static void flash_init(void);
 
 static void rcc_init(void);
 
+static void gpio_init(void);
+
+static void gpio_led_init(void);
+
 /* Private user code ------------------------------------------------------- */
 
 int main(void)
@@ -81,13 +92,23 @@ void error(void)
     __disable_irq();
 
     while (true) {
-        continue;
+        /* Задержка */
+        for (uint32_t i = 0; i < 9600; i++) {
+            for (uint32_t j = 0; j < 1000; j++) {
+                continue;
+            }
+        }
+        /* Мигание светодиода - Ошибка */
+        led_toggle(&led_blue);
     }
 }
 /* ------------------------------------------------------------------------- */
 
 static void app_main(void)
 {
+    /* Включить светодиод - Рабочее состояние */
+    led_on(&led_blue);
+
     while (true) {
         continue;
     }
@@ -104,6 +125,7 @@ static void setup_hardware(void)
     flash_init();
     rcc_init();
     systick_init(RCC_CPU_CLOCK);
+    gpio_init();
 }
 /* ------------------------------------------------------------------------- */
 
@@ -276,5 +298,40 @@ static void rcc_init(void)
             != 0x02 << RCC_CFGR_SWS_Pos) {
         continue;
     }
+}
+/* ------------------------------------------------------------------------- */
+
+static void gpio_init(void)
+{
+    /* Включить тактирование */
+    SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN_Msk);
+    SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOCEN_Msk);
+
+    gpio_led_init();
+}
+/* ------------------------------------------------------------------------- */
+
+static void gpio_led_init(void)
+{
+    /* LED_BLUE GPIOC13 */
+
+    /* Установить начальное состояние = High */
+    SET_BIT(GPIOC->ODR, GPIO_ODR_OD13_Msk);
+    /* Настроить режим работы = GPO */
+    MODIFY_REG(GPIOC->MODER,
+               GPIO_MODER_MODE13_Msk,
+               0x01 << GPIO_MODER_MODE13_Pos);
+    /* Настроить тип вывода = Push-Pull */
+    MODIFY_REG(GPIOC->OTYPER,
+               GPIO_OTYPER_OT13_Msk,
+               0x00 << GPIO_OTYPER_OT13_Pos);
+    /* Настроить скорость работы вывода = Low Speed */
+    MODIFY_REG(GPIOC->OSPEEDR,
+               GPIO_OSPEEDR_OSPEED13_Msk,
+               0x00 << GPIO_OSPEEDR_OSPEED13_Pos);
+    /* Настроить подтяжку сигнала = Pull-Up */
+    MODIFY_REG(GPIOC->PUPDR,
+               GPIO_PUPDR_PUPD13_Msk,
+               0x01 << GPIO_PUPDR_PUPD13_Pos);
 }
 /* ------------------------------------------------------------------------- */
