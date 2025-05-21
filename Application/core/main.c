@@ -27,6 +27,18 @@
 
 #define HSI_CLOCK               16000000
 
+#define RCC_HSERDY_TIMEOUT      100
+
+#define RCC_LSERDY_TIMEOUT      5000
+
+#define RCC_CPU_CLOCK           96000000
+
+#define RCC_AHB_CLOCK           (RCC_CPU_CLOCK / 1)
+
+#define RCC_APB1_CLOCK          (RCC_AHB_CLOCK / 2)
+
+#define RCC_APB2_CLOCK          (RCC_AHB_CLOCK / 1)
+
 /* Private types ----------------------------------------------------------- */
 
 /* Private variables ------------------------------------------------------- */
@@ -52,6 +64,8 @@ static void systick_init(const uint32_t frequency);
 static void pwr_init(void);
 
 static void flash_init(void);
+
+static void rcc_init(void);
 
 /* Private user code ------------------------------------------------------- */
 
@@ -88,6 +102,8 @@ static void setup_hardware(void)
     systick_init(HSI_CLOCK);
     pwr_init();
     flash_init();
+    rcc_init();
+    systick_init(RCC_CPU_CLOCK);
 }
 /* ------------------------------------------------------------------------- */
 
@@ -200,5 +216,65 @@ static void flash_init(void)
     MODIFY_REG(FLASH->ACR,
                FLASH_ACR_DCRST_Msk,
                FLASH_ACR_DCEN_Msk);
+}
+/* ------------------------------------------------------------------------- */
+
+static void rcc_init(void)
+{
+    uint32_t tickstart;
+
+    /* Включить HSE */
+    SET_BIT(RCC->CR, RCC_CR_HSEON_Msk);
+
+    tickstart = systick;
+    while (!READ_BIT(RCC->CR, RCC_CR_HSERDY_Msk)) {
+        if (systick - tickstart > RCC_HSERDY_TIMEOUT) {
+            error();
+        }
+    }
+
+    /* Включить CSS HSE */
+    SET_BIT(RCC->CR, RCC_CR_CSSON_Msk);
+
+    /* Выключить PLL перед настройкой */
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLON_Msk);
+
+    /* Настроить PLL */
+    WRITE_REG(RCC->PLLCFGR,
+              RCC_PLLCFGR_PLLSRC_Msk            /* Источник тактирования = HSE (25MHz) */
+            | 0x19 << RCC_PLLCFGR_PLLM_Pos      /* PLLM = /25 (HSE = 25MHz / 25 = 1MHz) */
+            | 0xC0 << RCC_PLLCFGR_PLLN_Pos      /* PLLN = x192 (1MHz * 192 = 192MHz) */
+            | 0x00 << RCC_PLLCFGR_PLLP_Pos      /* PLLP = /2 (192MHz / 2 = 96MHz) */
+            | 0x04 << RCC_PLLCFGR_PLLQ_Pos);    /* PLLQ = /4 (192MHz / 4 = 48MHz) */
+
+    /* Включить PLL */
+    SET_BIT(RCC->CR, RCC_CR_PLLON_Msk);
+    while (!READ_BIT(RCC->CR, RCC_CR_PLLRDY_Msk)) {
+        continue;
+    }
+
+    /* Ожидание готовности PWR VOS после включения PLL */
+    while (!READ_BIT(PWR->CSR, PWR_CSR_VOSRDY_Msk)) {
+        continue;
+    }
+
+    /* Настроить BUS */
+    MODIFY_REG(RCC->CFGR,
+               RCC_CFGR_HPRE_Msk
+             | RCC_CFGR_PPRE1_Msk
+             | RCC_CFGR_PPRE2_Msk,
+               0x00 << RCC_CFGR_HPRE_Pos        /* AHB = /1 (96MHz / 1 = 96MHz) */
+             | 0x04 << RCC_CFGR_PPRE1_Pos       /* APB1 = /2 (96MHz / 2 = 48MHz) */
+             | 0x00 << RCC_CFGR_PPRE2_Pos);     /* APB2 = /1 (96MHz / 1 = 96MHz) */
+
+    /* Настроить источник тактирования CPU */
+    MODIFY_REG(RCC->CFGR,
+               RCC_CFGR_SW_Msk,
+               0x02 << RCC_CFGR_SW_Pos);        /* Источник тактирования = PLLP */
+
+    while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS_Msk)
+            != 0x02 << RCC_CFGR_SWS_Pos) {
+        continue;
+    }
 }
 /* ------------------------------------------------------------------------- */
