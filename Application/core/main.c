@@ -51,6 +51,8 @@ static void systick_init(const uint32_t frequency);
 
 static void pwr_init(void);
 
+static void flash_init(void);
+
 /* Private user code ------------------------------------------------------- */
 
 int main(void)
@@ -85,6 +87,7 @@ static void setup_hardware(void)
 
     systick_init(HSI_CLOCK);
     pwr_init();
+    flash_init();
 }
 /* ------------------------------------------------------------------------- */
 
@@ -159,5 +162,43 @@ static void pwr_init(void)
     /* Настроить NVIC */
     NVIC_SetPriority(PVD_IRQn, 5);
     NVIC_EnableIRQ(PVD_IRQn);
+}
+/* ------------------------------------------------------------------------- */
+
+static void flash_init(void)
+{
+    /* Настроить задержку чтения флэш-памяти = 3WS */
+    MODIFY_REG(FLASH->ACR,
+               FLASH_ACR_LATENCY_Msk,
+               0x03 << FLASH_ACR_LATENCY_Pos);
+
+    /* Включить предварительную выборку данных */
+    SET_BIT(FLASH->ACR, FLASH_ACR_PRFTEN_Msk);
+
+    /* Настроить кэш-инструкций */
+    MODIFY_REG(FLASH->ACR,
+               FLASH_ACR_ICEN_Msk,
+               FLASH_ACR_ICRST_Msk);
+
+    for (uint32_t i = 0; i < 3; i++) {
+        __NOP();
+    }
+
+    MODIFY_REG(FLASH->ACR,
+               FLASH_ACR_ICRST_Msk,
+               FLASH_ACR_ICEN_Msk);
+
+    /* Настроить кэш-данных */
+    MODIFY_REG(FLASH->ACR,
+               FLASH_ACR_DCEN_Msk,
+               FLASH_ACR_DCRST_Msk);
+
+    for (uint32_t i = 0; i < 3; i++) {
+        __NOP();
+    }
+
+    MODIFY_REG(FLASH->ACR,
+               FLASH_ACR_DCRST_Msk,
+               FLASH_ACR_DCEN_Msk);
 }
 /* ------------------------------------------------------------------------- */
