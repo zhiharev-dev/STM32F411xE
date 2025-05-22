@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef DMA_H_
+#define DMA_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +25,7 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
-#include "stm32f4xx_hal_gpio.h"
+#include "stm32f4xx_hal_dma.h"
 
 /* Exported macros --------------------------------------------------------- */
 
@@ -35,13 +35,12 @@ extern "C" {
 
 /* Exported variables ------------------------------------------------------ */
 
-extern struct gpio_handle gpio_led_blue;
-
-extern struct gpio_handle gpio_w25q_cs;
+extern struct dma_handle dma2_stream2;
+extern struct dma_handle dma2_stream3;
 
 /* Exported function prototypes -------------------------------------------- */
 
-void gpio_init(void);
+void dma_init(void);
 
 /* Exported callback function prototypes ----------------------------------- */
 
@@ -49,4 +48,4 @@ void gpio_init(void);
 }
 #endif /* __cplusplus */
 
-#endif /* GPIO_H_ */
+#endif /* DMA_H_ */

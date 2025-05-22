@@ -20,6 +20,9 @@
 #include "stm32f411xe_it.h"
 #include "systick.h"
 #include "pwr.h"
+#include "dma.h"
+#include "spi.h"
+#include "w25q.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -87,5 +90,49 @@ void PVD_IRQHandler(void)
 void hal_pwr_pvd_status_changed_callback(void)
 {
 
+}
+/* ------------------------------------------------------------------------- */
+
+void DMA2_Stream2_IRQHandler(void)
+{
+    hal_dma_it_handler(&dma2_stream2);
+}
+/* ------------------------------------------------------------------------- */
+
+void DMA2_Stream3_IRQHandler(void)
+{
+    hal_dma_it_handler(&dma2_stream3);
+}
+/* ------------------------------------------------------------------------- */
+
+void hal_dma_transfer_completed_callback(struct dma_handle *handle)
+{
+    if (handle == &dma2_stream2) {
+        hal_spi_transmit_receive_completed_dma_it_handler(&spi1);
+    }
+}
+/* ------------------------------------------------------------------------- */
+
+void hal_dma_transfer_error_callback(struct dma_handle *handle)
+{
+    if (handle == &dma2_stream2 || handle == &dma2_stream3) {
+        hal_spi_error_dma_it_handler(&spi1);
+    }
+}
+/* ------------------------------------------------------------------------- */
+
+void hal_spi_transmit_receive_completed_callback(struct spi_handle *handle)
+{
+    if (handle == &spi1) {
+        w25q_spi_transmit_receive_completed_it_handler();
+    }
+}
+/* ------------------------------------------------------------------------- */
+
+void hal_spi_error_callback(struct spi_handle *handle)
+{
+    if (handle == &spi1) {
+        w25q_spi_error_it_handler();
+    }
 }
 /* ------------------------------------------------------------------------- */

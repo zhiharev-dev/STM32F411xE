@@ -23,7 +23,10 @@
 #include "flash.h"
 #include "rcc.h"
 #include "gpio.h"
+#include "dma.h"
+#include "spi.h"
 #include "led.h"
+#include "w25q.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -90,6 +93,11 @@ static void app_main(void *argv)
 
     /* INIT CODE BEGIN ----------------------------------------------------- */
 
+    /* Инициализировать внешнюю память */
+    if (w25q_init() != HAL_OK) {
+        hal_error();
+    }
+
     /* Включить светодиод - Рабочее состояние */
     led_on(&led_blue);
 
@@ -126,6 +134,8 @@ static void setup_hardware(void)
     rcc_init();
     systick_init(RCC_CPU_CLOCK);
     gpio_init();
+    dma_init();
+    spi_init();
 }
 /* ------------------------------------------------------------------------- */
 

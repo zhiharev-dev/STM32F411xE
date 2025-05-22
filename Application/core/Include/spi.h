@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef SPI_H_
+#define SPI_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,23 +25,31 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
-#include "stm32f4xx_hal_gpio.h"
+#include "stm32f4xx_hal_spi.h"
 
 /* Exported macros --------------------------------------------------------- */
 
 /* Exported constants ------------------------------------------------------ */
 
+#define SPI_EV_TX_RX_CPLT_Pos       0
+#define SPI_EV_TX_RX_CPLT_Msk       HAL_BITMASK(0x01, SPI_EV_TX_RX_CPLT_Pos)
+#define SPI_EV_TX_RX_CPLT           SPI_EV_TX_RX_CPLT_Msk
+
+#define SPI_EV_ERR_Pos              7
+#define SPI_EV_ERR_Msk              HAL_BITMASK(0x01, SPI_EV_ERR_Pos)
+#define SPI_EV_ERR                  SPI_EV_ERR_Msk
+
 /* Exported types ---------------------------------------------------------- */
 
 /* Exported variables ------------------------------------------------------ */
 
-extern struct gpio_handle gpio_led_blue;
-
-extern struct gpio_handle gpio_w25q_cs;
+extern struct spi_handle spi1;
+extern SemaphoreHandle_t spi1_mutex;
+extern EventGroupHandle_t spi1_event_group;
 
 /* Exported function prototypes -------------------------------------------- */
 
-void gpio_init(void);
+void spi_init(void);
 
 /* Exported callback function prototypes ----------------------------------- */
 
@@ -49,4 +57,4 @@ void gpio_init(void);
 }
 #endif /* __cplusplus */
 
-#endif /* GPIO_H_ */
+#endif /* SPI_H_ */

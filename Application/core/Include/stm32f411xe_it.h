@@ -50,6 +50,10 @@ void SysTick_Handler(void);
 
 void PVD_IRQHandler(void);
 
+void DMA2_Stream2_IRQHandler(void);
+
+void DMA2_Stream3_IRQHandler(void);
+
 /* Exported callback function prototypes ----------------------------------- */
 
 #ifdef __cplusplus

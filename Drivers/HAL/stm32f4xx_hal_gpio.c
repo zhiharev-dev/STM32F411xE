@@ -45,6 +45,7 @@ static void hal_gpio_setup_af(gpio_t *instance, uint32_t pin, uint32_t af);
  * @brief           Инициализировать GPIO
  *
  * @param[in]       handle: Указатель на структуру данных обработчика GPIO
+ * @param[in]       conf: Указатель на структуру данных для настройки GPIO
  */
 void hal_gpio_config(struct gpio_handle *handle, struct gpio_config *conf)
 {
