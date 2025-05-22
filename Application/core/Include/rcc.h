@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef RCC_H_
+#define RCC_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,39 +25,27 @@ extern "C" {
 /* Includes ---------------------------------------------------------------- */
 
 #include "main.h"
+#include "stm32f4xx_hal_rcc.h"
 
 /* Exported macros --------------------------------------------------------- */
 
-/**
- * @brief           Включить светодиод
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_on(handle)          hal_gpio_set_state((struct gpio_handle *) handle, GPIO_RESET)
-
-/**
- * @brief           Выключить светодиод
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_off(handle)         hal_gpio_set_state((struct gpio_handle *) handle, GPIO_SET)
-
-/**
- * @brief           Переключить состояние светодиода
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_toggle(handle)      hal_gpio_toggle((struct gpio_handle *) handle)
-
 /* Exported constants ------------------------------------------------------ */
+
+#define RCC_CPU_CLOCK           96000000
+
+#define RCC_AHB_CLOCK           (RCC_CPU_CLOCK / 1)
+
+#define RCC_APB1_CLOCK          (RCC_AHB_CLOCK / 2)
+
+#define RCC_APB2_CLOCK          (RCC_AHB_CLOCK / 1)
 
 /* Exported types ---------------------------------------------------------- */
 
 /* Exported variables ------------------------------------------------------ */
 
-#define led_blue gpio_led_blue
-
 /* Exported function prototypes -------------------------------------------- */
+
+void rcc_init(void);
 
 /* Exported callback function prototypes ----------------------------------- */
 
@@ -65,4 +53,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LED_H_ */
+#endif /* RCC_H_ */

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "led.h"
+#include "pwr.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -32,40 +32,22 @@
 /* Private user code ------------------------------------------------------- */
 
 /**
- * @brief           Включить светодиод
- *
- * @param[in]       self: Указатель на структуру данных светодиода
+ * @brief           Инициализировать PWR
  */
-void led_on(struct led *self)
+void pwr_init(void)
 {
-    assert(self->gpio != NULL && self->pin != 0);
+    struct pwr_config conf = {
+        .vos = PWR_VOS1,
+        .pvd_enable = HAL_ENABLE,
+        .pvd_level = PWR_PVD_2V9,
+        .bkp_regulator_enable = HAL_ENABLE,
+    };
 
-    SET_BIT(self->gpio->BSRR, self->pin << 16);
-}
-/* ------------------------------------------------------------------------- */
+    HAL_PWR_ENABLE_CLOCK();
 
-/**
- * @brief           Выключить светодиод
- *
- * @param[in]       self: Указатель на структуру данных светодиода
- */
-void led_off(struct led *self)
-{
-    assert(self->gpio != NULL && self->pin != 0);
+    hal_pwr_config(&conf);
 
-    SET_BIT(self->gpio->BSRR, self->pin);
-}
-/* ------------------------------------------------------------------------- */
-
-/**
- * @brief           Переключить состояние светодиода
- *
- * @param[in]       self: Указатель на структуру данных светодиода
- */
-void led_toggle(struct led *self)
-{
-    assert(self->gpio != NULL && self->pin != 0);
-
-    XOR_BIT(self->gpio->ODR, self->pin);
+    NVIC_SetPriority(PVD_IRQn, 5);
+    NVIC_EnableIRQ(PVD_IRQn);
 }
 /* ------------------------------------------------------------------------- */

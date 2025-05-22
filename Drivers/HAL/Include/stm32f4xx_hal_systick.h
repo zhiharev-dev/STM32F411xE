@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LED_H_
-#define LED_H_
+#ifndef STM32F4XX_HAL_SYSTICK_H_
+#define STM32F4XX_HAL_SYSTICK_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,45 +24,58 @@ extern "C" {
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "main.h"
+#include "stm32f4xx_hal_def.h"
 
 /* Exported macros --------------------------------------------------------- */
-
-/**
- * @brief           Включить светодиод
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_on(handle)          hal_gpio_set_state((struct gpio_handle *) handle, GPIO_RESET)
-
-/**
- * @brief           Выключить светодиод
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_off(handle)         hal_gpio_set_state((struct gpio_handle *) handle, GPIO_SET)
-
-/**
- * @brief           Переключить состояние светодиода
- *
- * @param[in]       handle: Указатель на структуру данных обработчика LED
- */
-#define led_toggle(handle)      hal_gpio_toggle((struct gpio_handle *) handle)
 
 /* Exported constants ------------------------------------------------------ */
 
 /* Exported types ---------------------------------------------------------- */
 
-/* Exported variables ------------------------------------------------------ */
+/**
+ * @brief           Определение структуры данных SysTick
+ */
+typedef SysTick_Type systick_t;
 
-#define led_blue gpio_led_blue
+
+/**
+ * @brief           Определение перечисления источников тактирования SysTick
+ */
+enum systick_clock_source {
+    SYSTICK_CPU_CLOCK_DIV8,
+    SYSTICK_CPU_CLOCK,
+};
+
+
+/**
+ * @brief           Определение структуры данных для настройки SysTick
+ */
+struct systick_config {
+    uint32_t frequency;                         /*!< Частота тактирования (Гц) */
+
+    uint32_t clksource;                         /*!< Источник тактирования @ref enum systick_clock_source */
+};
+
+/* Exported variables ------------------------------------------------------ */
 
 /* Exported function prototypes -------------------------------------------- */
 
+void hal_systick_config(struct systick_config *conf);
+
+void hal_systick_it_handler(void);
+
+void hal_systick_start_it(void);
+
+void hal_systick_stop_it(void);
+
+uint32_t hal_systick_tick(void);
+
 /* Exported callback function prototypes ----------------------------------- */
+
+__WEAK void hal_systick_period_elapsed_callback(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* LED_H_ */
+#endif /* STM32F4XX_HAL_SYSTICK_H_ */

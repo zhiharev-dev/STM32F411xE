@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32f411xe_it.h"
 #include "systick.h"
-#include "pwr.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -33,59 +31,19 @@
 
 /* Private user code ------------------------------------------------------- */
 
-void NMI_Handler(void)
+/**
+ * @brief           Инициализировать SysTick
+ *
+ * @param[in]       frequency: Частота тактирования (Гц)
+ */
+void systick_init(const uint32_t frequency)
 {
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
+    struct systick_config conf = {
+        .frequency = frequency,
+        .clksource = SYSTICK_CPU_CLOCK,
+    };
 
-void HardFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void MemManage_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void BusFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void UsageFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void SysTick_Handler(void)
-{
-    hal_systick_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_systick_period_elapsed_callback(void)
-{
-    /* Обработать системный таймер FreeRTOS */
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        xPortSysTickHandler();
-    }
-}
-/* ------------------------------------------------------------------------- */
-
-void PVD_IRQHandler(void)
-{
-    hal_pwr_pvd_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_pwr_pvd_status_changed_callback(void)
-{
-
+    hal_systick_config(&conf);
+    hal_systick_start_it();
 }
 /* ------------------------------------------------------------------------- */

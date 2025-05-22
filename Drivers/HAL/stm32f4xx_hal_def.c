@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32f411xe_it.h"
-#include "systick.h"
-#include "pwr.h"
+#include "stm32f4xx_hal_def.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -33,58 +31,17 @@
 
 /* Private user code ------------------------------------------------------- */
 
-void NMI_Handler(void)
+void hal_error(void)
 {
-    hal_error();
+    /* Выключить прерывания */
+    __disable_irq();
+
+    /* Вызвать функцию обратного вызова hal_error_callback */
+    hal_error_callback();
 }
 /* ------------------------------------------------------------------------- */
 
-void HardFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void MemManage_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void BusFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void UsageFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void SysTick_Handler(void)
-{
-    hal_systick_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_systick_period_elapsed_callback(void)
-{
-    /* Обработать системный таймер FreeRTOS */
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        xPortSysTickHandler();
-    }
-}
-/* ------------------------------------------------------------------------- */
-
-void PVD_IRQHandler(void)
-{
-    hal_pwr_pvd_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_pwr_pvd_status_changed_callback(void)
+__WEAK void hal_error_callback(void)
 {
 
 }

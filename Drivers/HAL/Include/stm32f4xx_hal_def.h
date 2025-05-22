@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,36 +15,85 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAIN_H_
-#define MAIN_H_
+#ifndef STM32F4XX_HAL_DEF_H_
+#define STM32F4XX_HAL_DEF_H_
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif  /* __cplusplus */
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32f4xx_hal_def.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "event_groups.h"
-#include "semphr.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include "stm32f4xx.h"
 
 /* Exported macros --------------------------------------------------------- */
 
+/**
+ * @brief           Битовая маска
+ *
+ * @param[in]       x: Значение
+ * @param[in]       n: Положение
+ *
+ * @return          Значение битовой маски
+ */
+#define HAL_BITMASK(x, n)       ((x) << (n))
+
 /* Exported constants ------------------------------------------------------ */
 
+/**
+ * @brief           Максимальное значение задержки
+ */
+#define HAL_MAX_DELAY       0xFFFFFFFF
+
 /* Exported types ---------------------------------------------------------- */
+
+/**
+ * @brief           Определение типа данных статуса
+ */
+typedef enum hal_status {
+    HAL_OK = 0,
+    HAL_ERROR,
+    HAL_BUSY,
+    HAL_TIMEOUT,
+} hal_status_t;
+
+
+/**
+ * @brief           Определение типа данных статуса флагов
+ */
+typedef enum hal_flag_status {
+    HAL_RESET,
+    HAL_SET,
+} hal_flag_status_t;
+
+
+/**
+ * @brief           Определение типа данных состояния
+ */
+typedef enum hal_state {
+    HAL_DISABLE,
+    HAL_ENABLE,
+} hal_state_t;
 
 /* Exported variables ------------------------------------------------------ */
 
 /* Exported function prototypes -------------------------------------------- */
 
+void hal_error(void);
+
 /* Exported callback function prototypes ----------------------------------- */
+
+__WEAK void hal_error_callback(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* MAIN_H_ */
+#endif /* STM32F4XX_HAL_DEF_H_ */

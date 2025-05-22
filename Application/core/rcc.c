@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2025 zhiharev-dev <zhiharev.dev@mail.ru>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 
-#include "stm32f411xe_it.h"
-#include "systick.h"
-#include "pwr.h"
+#include "rcc.h"
 
 /* Private macros ---------------------------------------------------------- */
 
@@ -33,59 +31,26 @@
 
 /* Private user code ------------------------------------------------------- */
 
-void NMI_Handler(void)
+/**
+ * @brief           Инициализировать RCC
+ */
+void rcc_init(void)
 {
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
+    struct rcc_config conf = {
+        .hse_enable = HAL_ENABLE,
+        .css_hse_enable = HAL_ENABLE,
+        .pll.enable = HAL_ENABLE,
+        .pll.clksource = RCC_PLL_HSE_CLOCK,
+        .pll.divm = 25,
+        .pll.divn = 192,
+        .pll.divp = 2,
+        .pll.divq = 4,
+        .ahb_div = RCC_AHB_NOT_DIV,
+        .apb1_div = RCC_APB_DIV2,
+        .apb2_div = RCC_APB_NOT_DIV,
+        .cpu_clksource = RCC_CPU_PLL_CLOCK,
+    };
 
-void HardFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void MemManage_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void BusFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void UsageFault_Handler(void)
-{
-    hal_error();
-}
-/* ------------------------------------------------------------------------- */
-
-void SysTick_Handler(void)
-{
-    hal_systick_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_systick_period_elapsed_callback(void)
-{
-    /* Обработать системный таймер FreeRTOS */
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        xPortSysTickHandler();
-    }
-}
-/* ------------------------------------------------------------------------- */
-
-void PVD_IRQHandler(void)
-{
-    hal_pwr_pvd_it_handler();
-}
-/* ------------------------------------------------------------------------- */
-
-void hal_pwr_pvd_status_changed_callback(void)
-{
-
+    hal_rcc_config(&conf);
 }
 /* ------------------------------------------------------------------------- */
